@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Gif Tastic</title>
+</head>
+
+<body>
+<style type="text/css">
+	.movie-image {
+		height:150px; 
+		width: 150px;
+	}
+	.container {
+		display: inline-block;
+		padding: 10px;
+	}
+</style>
+<div id='movie-buttons'></div> 
+
+<form id='movie-form'>
+ <label for='movie-input'>Add a Kids Movie!</label>
+ <input type="text" id="movie-input"><br>
+ <input id='add-movie' type='submit' value='Add a Kids Movie!'>
+</form>
+
+<div id='movie-display'></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+var movieInput = $("#movie-input").val().trim();
+var addMovie = $("#add-movie")
+var movieDisplay = $("movie-input")
+
+
+var moviesList = ["Frozen", "Tangled", "Trolls", 
+"Cinderella","Finding Nemo","Finding Dory","Maleficent", 
+"Beauty and the Beast", "Aladdin", "Little Mermaid"];
+
+function createButtons(){
+
+	$('#buttons-view').empty();
+
+	for (var i = 0; i < moviesList.length; i++) {
+
+		var a = $("<button>"); 
+		a.addClass('movieBtn');
+		a.attr('date-movies-name', moviesList[i]);
+		a.text(moviesList[i]);
+		$('#movie-buttons').append(a);
+	}
+}
+
+createButtons();
+
+$(".movieBtn").on('click', function() {
+
+	var movie = $(this).attr('date-movies-name');
+	var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=" + movie + "&limit=10";
+
+
+	$.ajax({
+		url: queryURL,
+		method: "GET"
+	}).done(function(response){ 
+		debugger
+		var gifsArr = response.data
+		$('#movie-display').empty();
+		for (var i = 0; i < gifsArr.length; i++) {
+			var src = response.data[i].images.original_still.url
+			var animated = response.data[i].images.original.url
+			var rating = response.data[i].rating
+			var containerDiv = $("<div class='container'/>")
+			var image = $("<img>");
+			var div = $("<div/>")
+			image.attr("src", src);
+			image.attr("data-animated", animated);
+			image.attr('date-state', "still")
+			image.attr('data-still', src);
+			image.addClass("movie-image");
+			div.html(rating);
+			containerDiv.append(image)
+			containerDiv.append(div)
+
+			$("#movie-display").append(containerDiv);
+		}
+	})
+
+});
+
+$(document).on('click', ".movie-image", function(){
+	var currentState = $(this).attr('date-state');
+	if (currentState === "still") {
+		var animatedSrc = $(this).attr('data-animated');
+		$(this).attr('src', animatedSrc);
+		$(this).attr('date-state', "animated");		
+	}
+	else {
+		var stillSrc = $(this).attr('data-still');
+		$(this).attr('src', stillSrc);	
+		$(this).attr('date-state', "still");	
+	}
+
+
+
+
+
+
+
+
+})
+
+
+
+
+
+</script>
+</body>
+</html>
